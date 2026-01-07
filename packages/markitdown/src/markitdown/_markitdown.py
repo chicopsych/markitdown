@@ -63,7 +63,7 @@ _plugins: Union[None, List[Any]] = None  # If None, plugins have not been loaded
 
 
 def _load_plugins() -> Union[None, List[Any]]:
-    """Lazy load plugins, exiting early if already loaded."""
+    """Carrega plugins sob demanda (lazy loading), saindo cedo se já estiverem carregados."""
     global _plugins
 
     # Skip if we've already loaded plugins
@@ -84,15 +84,15 @@ def _load_plugins() -> Union[None, List[Any]]:
 
 @dataclass(kw_only=True, frozen=True)
 class ConverterRegistration:
-    """A registration of a converter with its priority and other metadata."""
+    """Um registro de um conversor com sua prioridade e outros metadados."""
 
     converter: DocumentConverter
     priority: float
 
 
 class MarkItDown:
-    """(In preview) An extremely simple text-based document reader, suitable for LLM use.
-    This reader will convert common file-types or webpages to Markdown."""
+    """(Em prévia) Um leitor de documentos baseados em texto extremamente simples, adequado para uso com LLMs.
+    Este leitor converterá tipos de arquivos comuns ou páginas da web para Markdown."""
 
     def __init__(
         self,
@@ -132,9 +132,9 @@ class MarkItDown:
 
     def enable_builtins(self, **kwargs) -> None:
         """
-        Enable and register built-in converters.
-        Built-in converters are enabled by default.
-        This method should only be called once, if built-ins were initially disabled.
+        Habilita e registra conversores integrados (built-in).
+        Conversores integrados são habilitados por padrão.
+        Este método só deve ser chamado uma vez, se os integrados foram desabilitados inicialmente.
         """
         if not self._builtins_enabled:
             # TODO: Move these into converter constructors
@@ -224,9 +224,9 @@ class MarkItDown:
 
     def enable_plugins(self, **kwargs) -> None:
         """
-        Enable and register converters provided by plugins.
-        Plugins are disabled by default.
-        This method should only be called once, if plugins were initially disabled.
+        Habilita e registra conversores fornecidos por plugins.
+        Plugins são desabilitados por padrão.
+        Este método só deve ser chamado uma vez, se os plugins foram desabilitados inicialmente.
         """
         if not self._plugins_enabled:
             # Load plugins
@@ -248,12 +248,14 @@ class MarkItDown:
         *,
         stream_info: Optional[StreamInfo] = None,
         **kwargs: Any,
-    ) -> DocumentConverterResult:  # TODO: deal with kwargs
+    ) -> DocumentConverterResult:  # TODO: lidar com kwargs
         """
+        Função principal de conversão.
+
         Args:
-            - source: can be a path (str or Path), url, or a requests.response object
-            - stream_info: optional stream info to use for the conversion. If None, infer from source
-            - kwargs: additional arguments to pass to the converter
+            - source: pode ser um caminho (str ou Path), url, ou um objeto requests.Response
+            - stream_info: informações opcionais do fluxo para usar na conversão. Se None, infere da fonte
+            - kwargs: argumentos adicionais para passar ao conversor
         """
 
         # Local path or url
@@ -304,7 +306,7 @@ class MarkItDown:
         if isinstance(path, Path):
             path = str(path)
 
-        # Build a base StreamInfo object from which to start guesses
+        # Cria um objeto base StreamInfo a partir do qual começar a adivinhar
         base_guess = StreamInfo(
             local_path=path,
             extension=os.path.splitext(path)[1],
@@ -370,7 +372,7 @@ class MarkItDown:
             buffer.seek(0)
             stream = buffer
 
-        # Add guesses based on stream content
+        # Adiciona palpites baseados no conteúdo do fluxo
         guesses = self._get_stream_info_guesses(
             file_stream=stream, base_guess=base_guess or StreamInfo()
         )
@@ -638,13 +640,13 @@ class MarkItDown:
         priority: float = PRIORITY_SPECIFIC_FILE_FORMAT,
     ) -> None:
         """
-        Register a DocumentConverter with a given priority.
+        Registra um DocumentConverter com uma dada prioridade.
 
-        Priorities work as follows: By default, most converters get priority
-        DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT (== 0). The exception
-        is the PlainTextConverter, HtmlConverter, and ZipConverter, which get
-        priority PRIORITY_SPECIFIC_FILE_FORMAT (== 10), with lower values
-        being tried first (i.e., higher priority).
+        As prioridades funcionam da seguinte forma: Por padrão, a maioria dos conversores obtém prioridade
+        DocumentConverter.PRIORITY_SPECIFIC_FILE_FORMAT (== 0). A exceção
+        é o PlainTextConverter, HtmlConverter e ZipConverter, que obtêm
+        prioridade PRIORITY_SPECIFIC_FILE_FORMAT (== 10), com valores menores
+        sendo tentados primeiro (ou seja, maior prioridade).
 
         Just prior to conversion, the converters are sorted by priority, using
         a stable sort. This means that converters with the same priority will
@@ -667,7 +669,7 @@ class MarkItDown:
         self, file_stream: BinaryIO, base_guess: StreamInfo
     ) -> List[StreamInfo]:
         """
-        Given a base guess, attempt to guess or expand on the stream info using the stream content (via magika).
+        Dado um palpite base, tenta adivinhar ou expandir as informações do fluxo usando o conteúdo do fluxo (via magika).
         """
         guesses: List[StreamInfo] = []
 
@@ -766,7 +768,7 @@ class MarkItDown:
 
     def _normalize_charset(self, charset: str | None) -> str | None:
         """
-        Normalize a charset string to a canonical form.
+        Normaliza uma string de conjunto de caracteres para uma forma canônica.
         """
         if charset is None:
             return None

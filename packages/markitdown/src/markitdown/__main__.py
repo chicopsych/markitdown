@@ -12,35 +12,35 @@ from ._markitdown import MarkItDown, StreamInfo, DocumentConverterResult
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert various file formats to markdown.",
+        description="Converte vários formatos de arquivo para markdown.",
         prog="markitdown",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         usage=dedent(
             """
-            SYNTAX:
+            SINTAXE:
 
-                markitdown <OPTIONAL: FILENAME>
-                If FILENAME is empty, markitdown reads from stdin.
+                markitdown <OPCIONAL: NOME_DO_ARQUIVO>
+                Se NOME_DO_ARQUIVO estiver vazio, markitdown lê da entrada padrão (stdin).
 
-            EXAMPLE:
+            EXEMPLO:
 
-                markitdown example.pdf
+                markitdown exemplo.pdf
 
-                OR
+                OU
 
-                cat example.pdf | markitdown
+                cat exemplo.pdf | markitdown
 
-                OR
+                OU
 
-                markitdown < example.pdf
+                markitdown < exemplo.pdf
 
-                OR to save to a file use
+                OU para salvar em um arquivo use
 
-                markitdown example.pdf -o example.md
+                markitdown exemplo.pdf -o exemplo.md
 
-                OR
+                OU
 
-                markitdown example.pdf > example.md
+                markitdown exemplo.pdf > exemplo.md
             """
         ).strip(),
     )
@@ -50,70 +50,70 @@ def main():
         "--version",
         action="version",
         version=f"%(prog)s {__version__}",
-        help="show the version number and exit",
+        help="mostra o número da versão e sai",
     )
 
     parser.add_argument(
         "-o",
         "--output",
-        help="Output file name. If not provided, output is written to stdout.",
+        help="Nome do arquivo de saída. Se não fornecido, a saída é escrita no stdout.",
     )
 
     parser.add_argument(
         "-x",
         "--extension",
-        help="Provide a hint about the file extension (e.g., when reading from stdin).",
+        help="Fornece uma dica sobre a extensão do arquivo (ex: ao ler de stdin).",
     )
 
     parser.add_argument(
         "-m",
         "--mime-type",
-        help="Provide a hint about the file's MIME type.",
+        help="Fornece uma dica sobre o tipo MIME do arquivo.",
     )
 
     parser.add_argument(
         "-c",
         "--charset",
-        help="Provide a hint about the file's charset (e.g, UTF-8).",
+        help="Fornece uma dica sobre o conjunto de caracteres do arquivo (ex: UTF-8).",
     )
 
     parser.add_argument(
         "-d",
         "--use-docintel",
         action="store_true",
-        help="Use Document Intelligence to extract text instead of offline conversion. Requires a valid Document Intelligence Endpoint.",
+        help="Usa Document Intelligence para extrair texto em vez de conversão offline. Requer um Endpoint de Document Intelligence válido.",
     )
 
     parser.add_argument(
         "-e",
         "--endpoint",
         type=str,
-        help="Document Intelligence Endpoint. Required if using Document Intelligence.",
+        help="Endpoint do Document Intelligence. Obrigatório se estiver usando Document Intelligence.",
     )
 
     parser.add_argument(
         "-p",
         "--use-plugins",
         action="store_true",
-        help="Use 3rd-party plugins to convert files. Use --list-plugins to see installed plugins.",
+        help="Usa plugins de terceiros para converter arquivos. Use --list-plugins para ver plugins instalados.",
     )
 
     parser.add_argument(
         "--list-plugins",
         action="store_true",
-        help="List installed 3rd-party plugins. Plugins are loaded when using the -p or --use-plugin option.",
+        help="Lista plugins de terceiros instalados. Plugins são carregados ao usar a opção -p ou --use-plugin.",
     )
 
     parser.add_argument(
         "--keep-data-uris",
         action="store_true",
-        help="Keep data URIs (like base64-encoded images) in the output. By default, data URIs are truncated.",
+        help="Mantém URIs de dados (como imagens codificadas em base64) na saída. Por padrão, URIs de dados são truncadas.",
     )
 
     parser.add_argument("filename", nargs="?")
     args = parser.parse_args()
 
-    # Parse the extension hint
+    # Analisa a dica de extensão
     extension_hint = args.extension
     if extension_hint is not None:
         extension_hint = extension_hint.strip().lower()
@@ -123,7 +123,7 @@ def main():
         else:
             extension_hint = None
 
-    # Parse the mime type
+    # Analisa o tipo mime
     mime_type_hint = args.mime_type
     if mime_type_hint is not None:
         mime_type_hint = mime_type_hint.strip()
@@ -133,7 +133,7 @@ def main():
         else:
             mime_type_hint = None
 
-    # Parse the charset
+    # Analisa o conjunto de caracteres (charset)
     charset_hint = args.charset
     if charset_hint is not None:
         charset_hint = charset_hint.strip()
@@ -156,19 +156,19 @@ def main():
         )
 
     if args.list_plugins:
-        # List installed plugins, then exit
-        print("Installed MarkItDown 3rd-party Plugins:\n")
+        # Lista plugins instalados, então sai
+        print("Plugins de terceiros do MarkItDown Instalados:\n")
         plugin_entry_points = list(entry_points(group="markitdown.plugin"))
         if len(plugin_entry_points) == 0:
-            print("  * No 3rd-party plugins installed.")
+            print("  * Nenhum plugin de terceiros instalado.")
             print(
-                "\nFind plugins by searching for the hashtag #markitdown-plugin on GitHub.\n"
+                "\nEncontre plugins pesquisando pela hashtag #markitdown-plugin no GitHub.\n"
             )
         else:
             for entry_point in plugin_entry_points:
                 print(f"  * {entry_point.name:<16}\t(package: {entry_point.value})")
             print(
-                "\nUse the -p (or --use-plugins) option to enable 3rd-party plugins.\n"
+                "\nUse a opção -p (ou --use-plugins) para habilitar plugins de terceiros.\n"
             )
         sys.exit(0)
 
@@ -201,12 +201,12 @@ def main():
 
 
 def _handle_output(args, result: DocumentConverterResult):
-    """Handle output to stdout or file"""
+    """Lida com a saída para stdout ou arquivo"""
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(result.markdown)
     else:
-        # Handle stdout encoding errors more gracefully
+        # Lida com erros de codificação stdout com mais elegância
         print(
             result.markdown.encode(sys.stdout.encoding, errors="replace").decode(
                 sys.stdout.encoding
